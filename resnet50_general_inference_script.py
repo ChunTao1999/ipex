@@ -4,14 +4,18 @@ import torchvision.models as models
 def inference(model, data):
     with torch.no_grad():
         # warm up
-        for _ in range(100):
+        for _ in range(100): # 100
             model(data)
+            if (_ + 1) % 20 == 0:
+                print(f"Progress (warm-up): {_ + 1}")
 
         # measure
         import time
         start = time.time()
-        for _ in range(100):
+        for _ in range(100): # 100
             output = model(data)
+            if (_ + 1) % 20 == 0:
+                print(f"Progress: {_ + 1}")
         end = time.time()
         print('Inference took {:.2f} ms in average'.format((end - start) / 100 * 1000))
 
@@ -25,6 +29,7 @@ def main(args):
 
     model = model.to(memory_format=torch.channels_last)
     data = data.to(memory_format=torch.channels_last)
+    print("Model and data loaded")
 
     if args.dtype == 'float32':
         model = ipex.optimize(model, dtype=torch.float32)
@@ -43,13 +48,16 @@ def main(args):
                 model(data)
 
         model = convert(model)
+    print("Model optimized")
 
     with torch.cpu.amp.autocast(enabled=args.dtype == 'bfloat16'):
         with torch.no_grad():
             model = torch.jit.trace(model, data)
             model = torch.jit.freeze(model)
-
+        print("Model jit traced and freezed")
         inference(model, data)
+
+    print("Inference Complete")
 
 if __name__ == '__main__':
     import argparse
