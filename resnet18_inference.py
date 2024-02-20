@@ -25,8 +25,8 @@ input_tensor = preprocess(input_image)
 input_batch = input_tensor.unsqueeze(0) # create a mini-batch as expected by the model
 
 ############## TorchScript ###############
-model = ipex.optimize(model, dtype=torch.bfloat16)
-# model = ipex.optimize(model, dtype=torch.float)
+# model = ipex.optimize(model, dtype=torch.bfloat16)
+model = ipex.optimize(model, dtype=torch.float)
 
 with torch.no_grad(), torch.cpu.amp.autocast():
   model = torch.jit.trace(model, input_batch)
