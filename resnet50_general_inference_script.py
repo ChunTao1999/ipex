@@ -4,20 +4,20 @@ import torchvision.models as models
 def inference(model, data):
     with torch.no_grad():
         # warm up
-        for _ in range(100): # 100
+        for _ in range(30): # 100
             model(data)
-            if (_ + 1) % 20 == 0:
+            if (_ + 1) % 10 == 0:
                 print(f"Progress (warm-up): {_ + 1}")
 
         # measure
         import time
         start = time.time()
-        for _ in range(100): # 100
+        for _ in range(30): # 100
             output = model(data)
-            if (_ + 1) % 20 == 0:
+            if (_ + 1) % 10 == 0:
                 print(f"Progress: {_ + 1}")
         end = time.time()
-        print('Inference took {:.2f} ms in average'.format((end - start) / 100 * 1000))
+        print('Inference took {:.2f} ms in average'.format((end - start) / 30 * 1000))
 
 def main(args):
     model = models.resnet50(weights='ResNet50_Weights.DEFAULT')
@@ -42,7 +42,7 @@ def main(args):
         model = prepare(model, qconfig, example_inputs=data, inplace=False)
 
         # calibration
-        n_iter = 100
+        n_iter = 30
         with torch.no_grad():
             for i in range(n_iter):
                 model(data)
